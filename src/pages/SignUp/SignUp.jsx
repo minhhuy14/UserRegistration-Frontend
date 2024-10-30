@@ -1,16 +1,14 @@
-import * as React from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
+import { toast } from "react-toastify";
 import AppTheme from "../../assets/shared_themes/AppTheme";
 import SignUpContainer from "./Container";
 import Card from "./Card";
@@ -21,64 +19,76 @@ import {
 } from "../../assets/shared_themes/customizations/CustomIcons";
 
 import ColorModeSelect from "../../assets/shared_themes/ColorModeSelect";
+import { registerNewAccount } from "../../services/RegisterService";
 
 export default function SignUp(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState("");
+  const [fullName, setFullName] = useState("");
 
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [userNameErrorMessage, setUserNameErrorMessage] = useState("");
+  const [fullNameErrorMessage, setFullNameErrorMessage] = useState("");
   const validateInputs = () => {
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const name = document.getElementById("name");
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setEmailErrorMessage("Please enter a valid email address.");
       isValid = false;
     } else {
-      setEmailError(false);
       setEmailErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
+    if (!password || password.length < 6) {
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
     } else {
-      setPasswordError(false);
       setPasswordErrorMessage("");
     }
 
-    if (!name.value || name.value.length < 1) {
-      setNameError(true);
-      setNameErrorMessage("Name is required.");
+    if (!userName || userName.length < 1) {
+      setUserNameErrorMessage("UserName is required.");
       isValid = false;
     } else {
-      setNameError(false);
-      setNameErrorMessage("");
+      setUserNameErrorMessage("");
+    }
+    if (!fullName || fullName.length < 1) {
+      setFullNameErrorMessage("Full name is required.");
+      isValid = false;
+    } else {
+      setFullNameErrorMessage("");
     }
 
     return isValid;
   };
 
-  const handleSubmit = (event) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault();
+  const handleSubmit = async (event) => {
+    if (validateInputs() === false) {
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get("name"),
-      lastName: data.get("lastName"),
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    let userData = {
+      fullName: fullName,
+      userName: userName,
+      email: email,
+      password: password,
+    };
+
+    let response = await registerNewAccount(userData);
+    console.log(response);
+    if (response && response.status === 201) {
+      toast.success("Register new account successfully");
+    } else if (response && response.status === 409) {
+      if (response.data.emailExist === true) {
+        setEmailErrorMessage(response.data.message);
+      } else if (response.data.userNameExist === true) {
+        setUserNameErrorMessage(response.data.message);
+      }
+    } else {
+      toast.error("Something went wrong from server side");
+    }
   };
 
   return (
@@ -100,19 +110,20 @@ export default function SignUp(props) {
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <FormControl>
-              <FormLabel htmlFor="name" sx={{ textAlign: "left" }}>
+              <FormLabel htmlFor="fullname" sx={{ textAlign: "left" }}>
                 Full name
               </FormLabel>
               <TextField
-                autoComplete="name"
-                name="name"
+                autoComplete="fullname"
+                name="fullname"
                 required
                 fullWidth
-                id="name"
-                placeholder="Jon Snow"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? "error" : "primary"}
+                id="fullname"
+                placeholder="Lionel Messi"
+                color={"primary"}
+                error={fullNameErrorMessage ? true : false}
+                helperText={fullNameErrorMessage}
+                onChange={(e) => setFullName(e.target.value)}
               />
             </FormControl>
             <FormControl>
@@ -126,9 +137,10 @@ export default function SignUp(props) {
                 fullWidth
                 id="username"
                 placeholder="user01"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? "error" : "primary"}
+                error={userNameErrorMessage ? true : false}
+                helperText={userNameErrorMessage}
+                color={userNameErrorMessage ? "error" : "primary"}
+                onChange={(e) => setUserName(e.target.value)}
               />
             </FormControl>
             <FormControl>
@@ -139,13 +151,14 @@ export default function SignUp(props) {
                 required
                 fullWidth
                 id="email"
-                placeholder="your@email.com"
+                placeholder="example@email.com"
                 name="email"
                 autoComplete="email"
                 variant="outlined"
-                error={emailError}
+                error={emailErrorMessage ? true : false}
                 helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                color={emailErrorMessage ? "error" : "primary"}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </FormControl>
             <FormControl>
@@ -161,16 +174,17 @@ export default function SignUp(props) {
                 id="password"
                 autoComplete="new-password"
                 variant="outlined"
-                error={passwordError}
+                error={passwordErrorMessage ? true : false}
                 helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
+                color={passwordErrorMessage ? "error" : "primary"}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </FormControl>
             <Button
-              type="submit"
+              type="button"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
+              onClick={handleSubmit}
             >
               Sign up
             </Button>
