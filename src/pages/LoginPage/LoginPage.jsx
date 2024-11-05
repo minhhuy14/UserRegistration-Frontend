@@ -21,7 +21,7 @@ import {
 import ColorModeSelect from "../../assets/shared_themes/ColorModeSelect";
 import { registerNewAccount } from "../../services/RegisterService";
 
-export default function SignUp(props) {
+export default function LoginPage(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
@@ -102,7 +102,7 @@ export default function SignUp(props) {
             variant="h4"
             sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
           >
-            Sign up
+            Login
           </Typography>
           <Box
             component="form"
@@ -189,14 +189,14 @@ export default function SignUp(props) {
               Sign up
             </Button>
             <Typography sx={{ textAlign: "center" }}>
-              Already have an account?{" "}
+              Don't have an account?{" "}
               <span>
                 <Link
-                  href="/login"
+                  href="/signup"
                   variant="body2"
                   sx={{ alignSelf: "center" }}
                 >
-                  Login
+                  Sign up
                 </Link>
               </span>
             </Typography>
