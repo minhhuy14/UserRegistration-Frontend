@@ -15,20 +15,7 @@ axiosInstance.interceptors.response.use(
         return response;
 
     }, function (error) {
-
-        const status = (error && error.response && error.response.status) || 500;
-        switch (status) {
-            //Account already exists 
-            //Conflict status code
-            case 409:
-                {
-                    return error && error.response;
-                }
-            default: {
-                return Promise.reject(error);
-            }
-
-        }
+        return error && error.response;
     });
 
 export default axiosInstance;
