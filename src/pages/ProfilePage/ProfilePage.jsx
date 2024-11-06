@@ -8,7 +8,7 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import AppBarComponent from "../../components/AppBar";
+import AppBarComponent from "../../Components/AppBar";
 import AppTheme from "../../assets/shared_themes/AppTheme";
 import ColorModeSelect from "../../assets/shared_themes/ColorModeSelect";
 import { fetchProfileInfo } from "../../services/UserServices";
