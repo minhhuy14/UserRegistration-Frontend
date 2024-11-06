@@ -1,6 +1,6 @@
 import React from "react";
 import { Typography, Container, Box, CssBaseline } from "@mui/material";
-import AppBarComponent from "../../components/AppBar";
+import AppBarComponent from "../../Components/AppBar";
 import AppTheme from "../../assets/shared_themes/AppTheme";
 import ColorModeSelect from "../../assets/shared_themes/ColorModeSelect";
 
