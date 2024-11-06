@@ -13,15 +13,10 @@ import AppTheme from "../../assets/shared_themes/AppTheme";
 import SignUpContainer from "./Container";
 import Card from "./Card";
 
-import {
-  GoogleIcon,
-  FacebookIcon,
-} from "../../assets/shared_themes/customizations/CustomIcons";
-
 import ColorModeSelect from "../../assets/shared_themes/ColorModeSelect";
-import { registerNewAccount } from "../../services/RegisterService";
+import { handleRegisterNewAccount } from "../../services/UserServices";
 
-export default function SignUp(props) {
+export default function Register(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
@@ -76,10 +71,10 @@ export default function SignUp(props) {
       password: password,
     };
 
-    let response = await registerNewAccount(userData);
+    let response = await handleRegisterNewAccount(userData);
     console.log(response);
-    if (response && response.status === 201) {
-      toast.success("Register new account successfully");
+    if (response && response.status === 200) {
+      toast.success("Register new account successfully!");
     } else if (response && response.status === 409) {
       if (response.data.emailExist === true) {
         setEmailErrorMessage(response.data.message);
@@ -88,6 +83,11 @@ export default function SignUp(props) {
       }
     } else {
       toast.error("Something went wrong from server side");
+    }
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSubmit(event);
     }
   };
 
@@ -107,6 +107,7 @@ export default function SignUp(props) {
           <Box
             component="form"
             onSubmit={handleSubmit}
+            onKeyDown={handleKeyDown}
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <FormControl>
@@ -194,35 +195,23 @@ export default function SignUp(props) {
                 <Link
                   href="/login"
                   variant="body2"
-                  sx={{ alignSelf: "center" }}
+                  sx={{ alignSelf: "center", fontWeight: "bold" }}
                 >
                   Login
                 </Link>
               </span>
             </Typography>
-          </Box>
-          <Divider>
-            <Typography sx={{ color: "text.secondary" }}>or</Typography>
-          </Divider>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => alert("Sign up with Google")}
-              startIcon={<GoogleIcon />}
-              disabled
-            >
-              Sign up with Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => alert("Sign up with Facebook")}
-              startIcon={<FacebookIcon />}
-              disabled
-            >
-              Sign up with Facebook
-            </Button>
+            <Typography sx={{ textAlign: "center", marginBottom: 0 }}>
+              <span>
+                <Link
+                  href="/"
+                  variant="body2"
+                  sx={{ alignSelf: "center", fontWeight: "bold" }}
+                >
+                  Back to Home Page
+                </Link>
+              </span>
+            </Typography>
           </Box>
         </Card>
       </SignUpContainer>
